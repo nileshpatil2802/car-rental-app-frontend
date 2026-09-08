@@ -107,7 +107,7 @@ const Register = () => {
 
       console.log(response.data);
 
-      login(userData);
+     // login(userData);
 
       setToast({
         message: 'Registration successful! Welcome to SelfDrive Junction',

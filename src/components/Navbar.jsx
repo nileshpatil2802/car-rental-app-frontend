@@ -25,9 +25,13 @@ const Navbar = () => {
   const role = localStorage.getItem('role');
   const isAdmin = role === 'ADMIN';
 
-  useEffect(() => {
+ useEffect(() => {
+  if (user) {
     fetchUserProfile();
-  }, []);
+  } else {
+    setProfileData(null);
+  }
+}, [user]);
 
   const fetchUserProfile = async () => {
     try {
@@ -124,10 +128,13 @@ const Navbar = () => {
                   <FiUser className="text-xl" />
 
                   <span className="font-medium">
-                    {isAdmin
-                      ? 'Admin'
-                      : profileData?.firstName || user.firstName || 'User'}
-                  </span>
+  {isAdmin
+    ? "Admin"
+    : profileData?.firstName ||
+      localStorage.getItem("firstName") ||
+      user?.firstName ||
+      "User"}
+</span>
                 </Link>
 
                 <button

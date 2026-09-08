@@ -14,6 +14,7 @@ const GET_USER_BY_EMAIL = "http://localhost:8080/user/getUserByEmail";
 const UPDATE_USER = "http://localhost:8080/user/updateProfile";
 const ALL_USERS_FETCH_API_URL = "http://localhost:8080/user/getAllUsers";
 const USER_ALL_DOCUMENTS = "http://localhost:8080/user/listOfDocuments";
+const DELETE_Document_BY_ID = "http://localhost:8080/user/deleteUserDocument";
 
 
 
@@ -27,18 +28,40 @@ const DELETE_BOOKING_BY_ID = "http://localhost:8080/auth/admin/deleteBookingById
 // AUTH HEADER
 // ========================
 
+// const getAuthHeader = () => {
+//   const email = localStorage.getItem("email");
+//   const password = localStorage.getItem("password");
+
+//   if (!email || !password) {
+//     return {};
+//   }
+
+//   return {
+//     Authorization: `Basic ${btoa(`${email}:${password}`)}`
+//   };
+// };
+
 const getAuthHeader = () => {
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
 
   if (!email || !password) {
+    console.warn("⚠️ Missing credentials for auth header");
     return {};
   }
 
-  return {
-    Authorization: `Basic ${btoa(`${email}:${password}`)}`
-  };
+  try {
+    const encoded = btoa(`${email}:${password}`);
+    return {
+      Authorization: `Basic ${encoded}`
+    };
+  } catch (error) {
+    console.error("❌ Error encoding auth credentials:", error);
+    return {};
+  }
 };
+
+
 
 
 export const getAllCars = async () => {
@@ -409,6 +432,50 @@ export const getAllUsers = async () => {
   }
 };
 
+// export const getAllUserDocuments = async () => {
+//   try {
+//     const response = await axios.get(USER_ALL_DOCUMENTS, {
+//       headers: getAuthHeader(),
+//     });
+
+//     console.log("Documents Response:", response.data);
+
+//     return response.data.map((document) => {
+//       // Supports both flattened DTO and nested user object
+//       const user = document.user || {};
+
+//       return {
+//         id: document.id,
+
+//         userId: document.userId ?? user.id,
+//         firstName: document.firstName ?? user.firstName,
+//         lastName: document.lastName ?? user.lastName,
+
+//         fullName:
+//           document.fullName ||
+//           `${document.firstName ?? user.firstName ?? ""} ${
+//             document.lastName ?? user.lastName ?? ""
+//           }`.trim(),
+
+//         email: document.email ?? user.email,
+//         phone: document.phone ?? user.phone,
+
+//         drivingLicense: document.drivingLicense,
+//         aadhharCard: document.aadhharCard,
+
+//         status: document.status || "PENDING",
+//         reason: document.reason || "",
+//       };
+//     });
+//   } catch (error) {
+//     console.error(
+//       "Error fetching user documents:",
+//       error.response?.data || error.message
+//     );
+
+//     return [];
+//   }
+// };
 export const getAllUserDocuments = async () => {
   try {
     const response = await axios.get(USER_ALL_DOCUMENTS, {
@@ -418,15 +485,22 @@ export const getAllUserDocuments = async () => {
     console.log("Documents Response:", response.data);
 
     return response.data.map((document) => {
-      // Supports both flattened DTO and nested user object
       const user = document.user || {};
 
       return {
         id: document.id,
 
         userId: document.userId ?? user.id,
-        firstName: document.firstName ?? user.firstName,
-        lastName: document.lastName ?? user.lastName,
+
+        firstName:
+          document.firstName ??
+          user.firstName ??
+          "",
+
+        lastName:
+          document.lastName ??
+          user.lastName ??
+          "",
 
         fullName:
           document.fullName ||
@@ -434,25 +508,69 @@ export const getAllUserDocuments = async () => {
             document.lastName ?? user.lastName ?? ""
           }`.trim(),
 
-        email: document.email ?? user.email,
-        phone: document.phone ?? user.phone,
+        email:
+          document.email ??
+          user.email ??
+          "",
 
+        phone:
+          document.phone ??
+          user.phone ??
+          "",
+
+        // Files
         drivingLicense: document.drivingLicense,
         aadhharCard: document.aadhharCard,
+        
 
-        status: document.status || "PENDING",
+        // Add these two document number fields
+        drivingLicenseNo:
+          document.drivingLicenseNo ??
+          document.drivingLicenseNumber ??
+          "",
+        licenseExpiry : document.licenseExpiry,
+
+        aadharNo:
+          document.aadharNo ??
+          document.aadhaarNumber ??
+          document.aadhaarCardNumber ??
+          "",
+
+        status: String(
+          document.status || "PENDING",
+        ).toUpperCase(),
+
         reason: document.reason || "",
       };
     });
   } catch (error) {
     console.error(
       "Error fetching user documents:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
 
     return [];
   }
 };
+
+export const updateUserDocument = async (
+  userId,
+  documentType,
+  formData
+) => {
+  const response = await axios.put(
+    `http://localhost:8080/user/update-document/${userId}/${documentType}`,
+    formData,
+    {
+      headers: {
+        ...getAuthHeader(),
+      },
+    }
+  );
+
+  return response.data;
+};
+
 
 export const getCartById = async (id) => {
   try {
@@ -752,6 +870,195 @@ export const saveCarToCart = async (car) => {
 //   }
 // };
 
+// export const carBooking = async (booking) => {
+//   try {
+//     const userId = localStorage.getItem("userId");
+
+//     if (!userId) {
+//       throw new Error("User is not logged in");
+//     }
+
+//     if (!booking?.carId) {
+//       throw new Error("Car ID is missing");
+//     }
+
+//     const bookingData = {
+//       userId: Number(userId),
+//       carId: Number(booking.carId),
+
+//       price: Number(booking.price),
+
+//       pickupDate: booking.pickupDate,
+//       dropoffDate: booking.dropoffDate,
+
+//       pickupLocation: booking.pickupLocation,
+//       dropoffLocation: booking.dropoffLocation,
+
+//       tripDriverType: booking.tripDriverType,
+
+//       days: Number(booking.days),
+//       total: Number(booking.total),
+
+//       bookingStatus: "PENDING",
+//     };
+
+//     console.log("Booking Request:", bookingData);
+
+//     const response = await axios.post(
+//       "http://localhost:8080/user/booking",
+//       bookingData,
+//       {
+//         headers: {
+//           ...getAuthHeader(),
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     return response.data;
+//   } catch (error) {
+//     console.error("Full booking error:", error);
+//     console.error("Backend response:", error.response?.data);
+
+//     const backendMessage =
+//       error.response?.data?.message ||
+//       error.response?.data?.error ||
+//       error.message ||
+//       "Unable to book this car";
+
+//     throw new Error(backendMessage);
+//   }
+// };
+// export const carBooking = async (booking) => {
+//   try {
+//     const userId = localStorage.getItem("userId");
+
+//     if (!userId) {
+//       throw new Error("User is not logged in");
+//     }
+
+//     if (!booking?.carId) {
+//       throw new Error("Car ID is missing");
+//     }
+
+//     const bookingData = {
+//       userId: Number(userId),
+
+//       carId: Number(booking.carId),
+
+//       pickupDate: booking.pickupDate,
+//       dropoffDate: booking.dropoffDate,
+
+//       pickupLocation: booking.pickupLocation,
+//       dropoffLocation: booking.dropoffLocation,
+
+//       tripDriverType: booking.tripDriverType,
+
+//       days: Number(booking.days),
+//       price: Number(booking.price),
+//       total: Number(booking.total),
+
+//       bookingStatus: "PENDING",
+//     };
+
+//     console.log("=================================");
+//     console.log("BOOKING API REQUEST");
+//     console.log("=================================");
+//     console.log("Booking Data:", bookingData);
+
+//     const response = await axios.post(
+//       "http://localhost:8080/user/booking",
+//       bookingData,
+//       {
+//         headers: {
+//           ...getAuthHeader(),
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     console.log("Booking API Response:", response.data);
+
+//     return response.data;
+//   } catch (error) {
+//     console.error(
+//       "Booking Error:",
+//       error.response?.data || error.message
+//     );
+
+//     const backendMessage =
+//       error.response?.data?.message ||
+//       error.response?.data?.error ||
+//       error.message ||
+//       "Unable to book this car";
+
+//     throw new Error(backendMessage);
+//   }
+// };
+// export const carBooking = async (booking) => {
+//   try {
+//     const userId = localStorage.getItem("userId");
+
+//     if (!userId) {
+//       throw new Error("User is not logged in");
+//     }
+
+//     if (!booking?.carId) {
+//       throw new Error("Car ID is missing");
+//     }
+
+//     // Build the booking data with all required fields
+//     const bookingData = {
+//       userId: Number(userId),
+//       carId: Number(booking.carId),
+//       pickupDate: booking.pickupDate,
+//       dropoffDate: booking.dropoffDate,
+//       pickupLocation: booking.pickupLocation || "",
+//       dropoffLocation: booking.dropoffLocation || "",
+//       tripDriverType: booking.tripDriverType || booking.tripType || "SELF_DRIVE",
+//       days: Number(booking.days),
+//       price: Number(booking.price),
+//       total: Number(booking.total),
+//       bookingStatus: booking.bookingStatus || "PENDING",
+//     };
+
+//     // Add driver details if provided (for self-drive bookings)
+//     if (booking.driverDetails) {
+//       bookingData.driverDetails = booking.driverDetails;
+//     }
+
+//     console.log("=================================");
+//     console.log("📤 BOOKING API REQUEST");
+//     console.log("=================================");
+//     console.log("Booking Data:", JSON.stringify(bookingData, null, 2));
+
+//     const response = await axios.post(
+//       "http://localhost:8080/user/booking",
+//       bookingData,
+//       {
+//         headers: {
+//           ...getAuthHeader(),
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     console.log("✅ Booking API Response:", response.data);
+//     return response.data;
+
+//   } catch (error) {
+//     console.error("❌ Booking Error:", error.response?.data || error.message);
+    
+//     // Extract meaningful error message
+//     const backendMessage = 
+//       error.response?.data?.message ||
+//       error.response?.data?.error ||
+//       error.message ||
+//       "Unable to book this car";
+
+//     throw new Error(backendMessage);
+//   }
+// };
 export const carBooking = async (booking) => {
   try {
     const userId = localStorage.getItem("userId");
@@ -764,27 +1071,31 @@ export const carBooking = async (booking) => {
       throw new Error("Car ID is missing");
     }
 
+    // Build the booking data with all required fields
     const bookingData = {
       userId: Number(userId),
       carId: Number(booking.carId),
-
-      price: Number(booking.price),
-
       pickupDate: booking.pickupDate,
       dropoffDate: booking.dropoffDate,
-
-      pickupLocation: booking.pickupLocation,
-      dropoffLocation: booking.dropoffLocation,
-
-      tripDriverType: booking.tripDriverType,
-
+      pickupLocation: booking.pickupLocation || "",
+      dropoffLocation: booking.dropoffLocation || "",
+      tripDriverType: booking.tripDriverType || booking.tripType || "SELF_DRIVE",
       days: Number(booking.days),
+      price: Number(booking.price),
       total: Number(booking.total),
-
-      bookingStatus: "PENDING",
+      bookingStatus: booking.bookingStatus || "PENDING",
+      source: "WHATSAPP", // Add source to differentiate
     };
 
-    console.log("Booking Request:", bookingData);
+    // Add driver details if provided (for self-drive bookings)
+    if (booking.driverDetails) {
+      bookingData.driverDetails = booking.driverDetails;
+    }
+
+    console.log("=================================");
+    console.log("📤 BOOKING API REQUEST (WHATSAPP)");
+    console.log("=================================");
+    console.log("Booking Data:", JSON.stringify(bookingData, null, 2));
 
     const response = await axios.post(
       "http://localhost:8080/user/booking",
@@ -797,12 +1108,27 @@ export const carBooking = async (booking) => {
       }
     );
 
+    console.log("✅ Booking API Response:", response.data);
     return response.data;
-  } catch (error) {
-    console.error("Full booking error:", error);
-    console.error("Backend response:", error.response?.data);
 
-    const backendMessage =
+  } catch (error) {
+    console.error("❌ Booking Error:", error.response?.data || error.message);
+    
+    // Check if it's a duplicate/car already booked error
+    const statusCode = error.response?.status;
+    const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
+    
+    // If status is 409 (Conflict) or 400 (Bad Request) with duplicate message
+    if (statusCode === 409 || 
+        statusCode === 400 || 
+        errorMessage?.toLowerCase().includes("already booked") ||
+        errorMessage?.toLowerCase().includes("duplicate") ||
+        errorMessage?.toLowerCase().includes("conflict")) {
+      throw new Error("This car is already booked for the selected dates. Please choose different dates.");
+    }
+    
+    // Extract meaningful error message
+    const backendMessage = 
       error.response?.data?.message ||
       error.response?.data?.error ||
       error.message ||
@@ -810,6 +1136,361 @@ export const carBooking = async (booking) => {
 
     throw new Error(backendMessage);
   }
+};
+
+export const createWhatsAppBooking = async (booking) => {
+
+  try {
+
+    const userId =
+      localStorage.getItem("userId");
+
+    const bookingData = {
+      userId: Number(userId),
+
+      carId: Number(booking.carId),
+
+      pickupDate: booking.pickupDate,
+
+      dropoffDate: booking.dropoffDate,
+
+      pickupLocation:
+        booking.pickupLocation,
+
+      dropoffLocation:
+        booking.dropoffLocation,
+
+      tripDriverType:
+        booking.tripDriverType,
+
+      days: Number(booking.days),
+
+      price: Number(booking.price),
+
+      total: Number(booking.total)
+    };
+
+    const response = await axios.post(
+      "http://localhost:8080/api/whatsapp/whatsapp-booking",
+      bookingData,
+      {
+        headers: {
+          ...getAuthHeader(),
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data;
+
+  } catch (error) {
+
+    console.error(
+      "WhatsApp booking error:",
+      error.response?.data ||
+      error.message
+    );
+
+    throw new Error(
+      error.response?.data?.message ||
+      "Unable to create WhatsApp booking"
+    );
+  }
+};
+
+// ==========================================
+// HANDLE BOOKING RESPONSE - Updated
+// ==========================================
+const handleBookingResponse = (response, bookingPayload) => {
+  console.log("📥 Processing booking response:", response);
+  
+  let bookingData = null;
+  let bookingId = null;
+  let success = false;
+  let message = "";
+  
+  // Check if response indicates an error
+  if (response?.error || response?.success === false) {
+    throw new Error(response.message || "Booking failed");
+  }
+  
+  // Handle different response formats from backend
+  if (Array.isArray(response)) {
+    // Backend returns list of bookings
+    const latestBooking = response[response.length - 1];
+    if (latestBooking) {
+      bookingData = latestBooking;
+      bookingId = latestBooking.bookingId || latestBooking.id;
+      success = true;
+      message = "Booking request sent to admin successfully!";
+      addBooking(latestBooking);
+    }
+  } else if (response?.data) {
+    // Response wrapped in data field
+    bookingData = response.data;
+    bookingId = bookingData.bookingId || bookingData.id;
+    success = true;
+    message = response.message || "Booking request sent to admin successfully!";
+    addBooking(bookingData);
+  } else if (response?.bookingId || response?.id) {
+    // Direct booking object
+    bookingData = response;
+    bookingId = response.bookingId || response.id;
+    success = true;
+    message = "Booking request sent to admin successfully!";
+    addBooking(response);
+  } else if (response?.message && response?.status) {
+    // Simple status response
+    success = response.status === "success";
+    message = response.message;
+    if (response.bookingId) {
+      bookingId = response.bookingId;
+    }
+  } else {
+    console.warn("⚠️ Unknown response format:", response);
+    throw new Error("Unexpected response format from server");
+  }
+  
+  return {
+    success,
+    message,
+    bookingData,
+    bookingId
+  };
+};
+
+// ==========================================
+// HANDLE CONFIRM BOOKING - Updated
+// ==========================================
+const handleConfirmBooking = async () => {
+  // Step 1 validation
+  if (!validateStep1()) {
+    setStep(1);
+    return;
+  }
+
+  // Self-drive validation
+  if (formData.tripType === "SELF_DRIVE" && !validateStep2()) {
+    setStep(2);
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const bookingPayload = createBookingPayload();
+    console.log("🚀 Sending booking payload:", bookingPayload);
+    
+    const response = await carBooking(bookingPayload);
+    
+    // Process the response
+    const result = handleBookingResponse(response, bookingPayload);
+    
+    if (result.success) {
+      setToast({
+        message: result.message,
+        type: "success",
+      });
+      
+      // Store booking ID for tracking
+      if (result.bookingId) {
+        localStorage.setItem("lastBookingId", result.bookingId);
+      }
+      
+      // Navigate to dashboard to see booking status
+      setTimeout(() => {
+        navigate("/dashboard", {
+          state: {
+            activeTab: "bookings",
+            newBookingId: result.bookingId
+          }
+        });
+      }, 2000);
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error("❌ Booking Error:", error);
+    
+    const errorMessage = error?.message || "Booking failed!";
+    
+    // Check for specific error types
+    if (errorMessage.toLowerCase().includes("already booked")) {
+      setToast({
+        message: "This car is already booked for the selected dates. Please choose different dates.",
+        type: "error",
+      });
+    } else if (errorMessage.toLowerCase().includes("blocked")) {
+      setToast({
+        message: "Your account is blocked. Please contact admin for assistance.",
+        type: "error",
+      });
+    } else {
+      setToast({
+        message: errorMessage,
+        type: "error",
+      });
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// ==========================================
+// HANDLE BOOK VIA WHATSAPP - Updated
+// ==========================================
+const handleBookViaWhatsApp = async () => {
+  // Step 1 validation
+  if (!validateStep1()) {
+    setStep(1);
+    setToast({
+      message: "Please complete all booking details first.",
+      type: "error",
+    });
+    return;
+  }
+
+  // Self-drive validation
+  if (formData.tripType === "SELF_DRIVE" && !validateStep2()) {
+    setStep(2);
+    setToast({
+      message: "Please complete the driver details.",
+      type: "error",
+    });
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const bookingPayload = createBookingPayload();
+    console.log("📦 WhatsApp Booking Payload:", bookingPayload);
+
+    // Save booking to database
+    console.log("💾 Saving booking to database...");
+    const response = await carBooking(bookingPayload);
+    
+    // Process the response
+    const result = handleBookingResponse(response, bookingPayload);
+    
+    if (!result.success || !result.bookingId) {
+      throw new Error(result.message || "Booking was not saved properly.");
+    }
+
+    console.log("✅ Booking saved with ID:", result.bookingId);
+    
+    // Store booking ID
+    localStorage.setItem("lastBookingId", result.bookingId);
+    
+    // Build WhatsApp message with booking details
+    const message = buildWhatsAppMessage(bookingPayload, result.bookingData);
+    
+    // Business WhatsApp number
+    const whatsappNumber = "918378891656";
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    
+    setToast({
+      message: `Booking #${result.bookingId} saved successfully! Redirecting to WhatsApp...`,
+      type: "success",
+    });
+
+    // Navigate to dashboard after delay
+    setTimeout(() => {
+      navigate("/dashboard", {
+        state: {
+          activeTab: "bookings",
+          newBookingId: result.bookingId
+        }
+      });
+    }, 3000);
+
+  } catch (error) {
+    console.error("❌ WhatsApp Booking Error:", error);
+    
+    const errorMessage = error?.message || "Unable to process booking.";
+    
+    if (errorMessage.toLowerCase().includes("already booked")) {
+      setToast({
+        message: "This car is already booked for the selected dates. Please choose different dates.",
+        type: "error",
+      });
+    } else if (errorMessage.toLowerCase().includes("blocked")) {
+      setToast({
+        message: "Your account is blocked. Please contact admin.",
+        type: "error",
+      });
+    } else {
+      setToast({
+        message: errorMessage,
+        type: "error",
+      });
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// ========================
+// BOOKING HELPERS
+// ========================
+
+export const validateBookingData = (bookingData) => {
+  const errors = [];
+
+  if (!bookingData.carId) {
+    errors.push("Car ID is required");
+  }
+
+  if (!bookingData.pickupDate) {
+    errors.push("Pickup date is required");
+  }
+
+  if (!bookingData.dropoffDate) {
+    errors.push("Dropoff date is required");
+  }
+
+  if (!bookingData.pickupLocation) {
+    errors.push("Pickup location is required");
+  }
+
+  if (!bookingData.dropoffLocation) {
+    errors.push("Dropoff location is required");
+  }
+
+  if (!bookingData.tripDriverType) {
+    errors.push("Trip type is required");
+  }
+
+  if (!bookingData.days || bookingData.days <= 0) {
+    errors.push("Valid number of days is required");
+  }
+
+  if (!bookingData.price || bookingData.price <= 0) {
+    errors.push("Valid price is required");
+  }
+
+  if (!bookingData.total || bookingData.total <= 0) {
+    errors.push("Valid total is required");
+  }
+
+  // For self-drive bookings, validate driver details
+  if (bookingData.tripDriverType === "SELF_DRIVE" && bookingData.driverDetails) {
+    const driver = bookingData.driverDetails;
+    
+    if (!driver.firstName) errors.push("Driver first name is required");
+    if (!driver.lastName) errors.push("Driver last name is required");
+    if (!driver.licenseNumber) errors.push("License number is required");
+    if (!driver.licenseExpiry) errors.push("License expiry date is required");
+    if (!driver.aadhaarNumber) errors.push("Aadhaar number is required");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 };
 
 export const deleteCartById = async (id) => {
@@ -1052,8 +1733,14 @@ export const uploadDocuments = async (formData) => {
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
 
+  if (!email || !password) {
+    throw new Error("Login credentials not found.");
+  }
+
   console.log("Upload Email:", email);
   console.log("Upload Password:", password);
+
+  console.log("uploadDocuments formData :",formData);
 
   const response = await fetch("http://localhost:8080/user/upload-documents", {
     method: "POST",
@@ -1384,6 +2071,19 @@ export const deleteUserById = async (id) => {
     console.error("Error deleting user:", error);
     throw error;
   }
+};
+
+export const deleteUserDocument = async (documentType) => {
+  const userId = localStorage.getItem("userId");
+
+  console.log("deleteUserDocument send request → userId:", userId, "type:", documentType);
+
+  const response = await axios.delete(
+    `${DELETE_Document_BY_ID}/${userId}/${documentType}`,
+    { headers: getAuthHeader() }
+  );
+
+  return response.data;
 };
 
 export const updateUserStatus = async (id) => {

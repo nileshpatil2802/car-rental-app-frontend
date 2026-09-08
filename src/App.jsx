@@ -6,7 +6,6 @@ import { BookingProvider } from './context/BookingContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Loader from './components/Loader';
-
 // Pages
 import Home from './pages/Home';
 import Cars from './pages/Cars';
@@ -21,6 +20,8 @@ import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import NotFound from './pages/NotFound';
 
+import ScrollToTop from "./components/ScrollToTop";
+
 // Protected Route Component
 const ProtectedRoute = ({ children, user, isLoading }) => {
   if (isLoading) return <Loader />;
@@ -34,6 +35,7 @@ function AppContent() {
 
   return (
     <Router>
+       <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
@@ -87,5 +89,7 @@ function App() {
     </AuthProvider>
   );
 }
+
+
 
 export default App;
