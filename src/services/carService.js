@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_URL = "http://localhost:8080";
-const BASE_URL = "https://car-rental-app-backend-2.onrender.com";
+const BASE_URL = "https://car-rental-app-backend-1-gb8e.onrender.com";
 
 const CAR_IMAGE_BASE_URL =`${BASE_URL}/car-images`;
 
