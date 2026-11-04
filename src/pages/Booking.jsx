@@ -9646,174 +9646,329 @@ Thank you.
   // HANDLE WHATSAPP BOOKING
   // ============================================================
 
-  const handleBookViaWhatsApp = async () => {
-    // Validate STEP 1
-    if (!validateStep1()) {
-      setStep(1);
+  // const handleBookViaWhatsApp = async () => {
+  //   // Validate STEP 1
+  //   if (!validateStep1()) {
+  //     setStep(1);
 
-      setToast({
-        message:
-          "Please complete all booking details first.",
-        type: "error",
-      });
+  //     setToast({
+  //       message:
+  //         "Please complete all booking details first.",
+  //       type: "error",
+  //     });
 
-      return;
+  //     return;
+  //   }
+
+  //   // Validate STEP 2
+  //   if (
+  //     formData.tripType ===
+  //       "SELF_DRIVE" &&
+  //     !validateStep2()
+  //   ) {
+  //     setStep(2);
+
+  //     setToast({
+  //       message:
+  //         "Please complete the driver details.",
+  //       type: "error",
+  //     });
+
+  //     return;
+  //   }
+
+  //   try {
+  //     setIsLoading(true);
+
+  //     const bookingPayload =
+  //       createBookingPayload();
+
+  //     console.log(
+  //       "WhatsApp Booking Payload:",
+  //       bookingPayload
+  //     );
+
+  //     setToast({
+  //       message:
+  //         "Creating WhatsApp booking...",
+  //       type: "success",
+  //     });
+
+  //     // ========================================================
+  //     // CALL BACKEND
+  //     // ========================================================
+
+  //     const response =
+  //       await createWhatsAppBooking(
+  //         bookingPayload
+  //       );
+
+  //     console.log(
+  //       "WhatsApp Booking Response:",
+  //       response
+  //     );
+
+  //     // ========================================================
+  //     // EXTRACT RESPONSE
+  //     // ========================================================
+
+  //     const responseData =
+  //       response?.data ||
+  //       response;
+
+  //     const bookingData =
+  //       responseData?.booking ||
+  //       responseData?.bookingData ||
+  //       responseData;
+
+  //     const whatsappUrl =
+  //       responseData?.whatsappUrl;
+
+  //     // ========================================================
+  //     // ADD BOOKING TO CONTEXT
+  //     // ========================================================
+
+  //     if (bookingData) {
+  //       addBooking(bookingData);
+  //     }
+
+  //     // ========================================================
+  //     // OPEN WHATSAPP
+  //     // ========================================================
+
+  //     if (whatsappUrl) {
+  //       window.open(
+  //         whatsappUrl,
+  //         "_blank",
+  //         "noopener,noreferrer"
+  //       );
+  //     } else {
+  //       // Fallback:
+  //       // Build WhatsApp message on frontend
+  //       const message =
+  //         buildWhatsAppMessage(
+  //           bookingPayload,
+  //           bookingData
+  //         );
+
+  //       const whatsappNumber =
+  //         "918378891656";
+
+  //       const fallbackUrl =
+  //         `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+  //           message
+  //         )}`;
+
+  //       window.open(
+  //         fallbackUrl,
+  //         "_blank",
+  //         "noopener,noreferrer"
+  //       );
+  //     }
+
+  //     setToast({
+  //       message:
+  //         "Booking created successfully. WhatsApp is ready to send.",
+  //       type: "success",
+  //     });
+
+  //     // Navigate after opening WhatsApp
+  //     setTimeout(() => {
+  //       navigate("/dashboard");
+  //     }, 2500);
+  //   } catch (error) {
+  //     console.error(
+  //       "WhatsApp Booking Error:",
+  //       error
+  //     );
+
+  //     const errorMessage =
+  //       error?.response?.data?.message ||
+  //       error?.response?.data?.error ||
+  //       error?.message ||
+  //       "WhatsApp booking failed.";
+
+  //     const lowerMessage =
+  //       errorMessage.toLowerCase();
+
+  //     if (
+  //       lowerMessage.includes(
+  //         "already booked"
+  //       ) ||
+  //       lowerMessage.includes(
+  //         "already reserved"
+  //       )
+  //     ) {
+  //       setToast({
+  //         message:
+  //           "This car is already booked for the selected dates. Please choose different dates.",
+  //         type: "error",
+  //       });
+  //     } else {
+  //       setToast({
+  //         message: errorMessage,
+  //         type: "error",
+  //       });
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+//   const handleBookViaWhatsApp = async () => {
+//   // 1. Step Validation
+//   if (!validateStep1()) {
+//     setStep(1);
+//     setToast({
+//       message: "Please complete all booking details first.",
+//       type: "error",
+//     });
+//     return;
+//   }
+
+//   if (formData.tripType === "SELF_DRIVE" && !validateStep2()) {
+//     setStep(2);
+//     setToast({
+//       message: "Please complete the driver details.",
+//       type: "error",
+//     });
+//     return;
+//   }
+
+//   try {
+//     setIsLoading(true);
+
+//     const bookingPayload = createBookingPayload();
+
+//     setToast({
+//       message: "Creating WhatsApp booking...",
+//       type: "success",
+//     });
+
+//     // 2. Save booking to DB via backend
+//     const response = await createWhatsAppBooking(bookingPayload);
+
+//     const responseData = response?.data || response;
+//     const bookingData = responseData?.booking || responseData;
+
+//     if (bookingData) {
+//       addBooking(bookingData);
+//     }
+
+//     // 3. Build WhatsApp text message on frontend
+//     const message = buildWhatsAppMessage(bookingPayload, bookingData);
+//     const whatsappNumber = "918378891656"; // Admin phone number
+
+//     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+//       message
+//     )}`;
+
+//     // 4. Open WhatsApp Web/App directly
+//     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+
+//     setToast({
+//       message: "Booking created with PENDING status. Opening WhatsApp...",
+//       type: "success",
+//     });
+
+//     // 5. Redirect user to dashboard
+//     setTimeout(() => {
+//       navigate("/dashboard");
+//     }, 2500);
+
+//   } catch (error) {
+//     console.error("WhatsApp Booking Error:", error);
+
+//     const errorMessage =
+//       error?.response?.data?.message ||
+//       error?.message ||
+//       "WhatsApp booking failed.";
+
+//     setToast({
+//       message: errorMessage,
+//       type: "error",
+//     });
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+const handleBookViaWhatsApp = async () => {
+  // 1. Step Validation
+  if (!validateStep1()) {
+    setStep(1);
+    setToast({
+      message: "Please complete all booking details first.",
+      type: "error",
+    });
+    return;
+  }
+
+  if (formData.tripType === "SELF_DRIVE" && !validateStep2()) {
+    setStep(2);
+    setToast({
+      message: "Please complete the driver details.",
+      type: "error",
+    });
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+
+    const bookingPayload = createBookingPayload();
+
+    setToast({
+      message: "Creating WhatsApp booking...",
+      type: "success",
+    });
+
+    // 2. Save booking to DB via backend
+    const response = await createWhatsAppBooking(bookingPayload);
+
+    const responseData = response?.data || response;
+    const bookingData = responseData?.booking || responseData;
+
+    if (bookingData) {
+      addBooking(bookingData);
     }
 
-    // Validate STEP 2
-    if (
-      formData.tripType ===
-        "SELF_DRIVE" &&
-      !validateStep2()
-    ) {
-      setStep(2);
+    // 3. Build WhatsApp text message
+    const message = buildWhatsAppMessage(bookingPayload, bookingData);
+    const whatsappNumber = "918378891656"; // Admin phone number
+    const encodedMessage = encodeURIComponent(message);
 
-      setToast({
-        message:
-          "Please complete the driver details.",
-        type: "error",
-      });
+    // 4. Determine platform link
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+   // const appUrl = `whatsapp://send?phone=${whatsappNumber}&text=${encodedMessage}`;
+    const appUrl = `http://localhost:5173/dashboard`;
+   const webUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-      return;
+    // 5. Navigate web app to dashboard immediately
+    navigate("/dashboard");
+
+    // 6. Launch WhatsApp
+    if (isMobile) {
+      window.location.href = appUrl;
+    } else {
+      window.open(webUrl, "_blank", "noopener,noreferrer");
     }
 
-    try {
-      setIsLoading(true);
+  } catch (error) {
+    console.error("WhatsApp Booking Error:", error);
 
-      const bookingPayload =
-        createBookingPayload();
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "WhatsApp booking failed.";
 
-      console.log(
-        "WhatsApp Booking Payload:",
-        bookingPayload
-      );
-
-      setToast({
-        message:
-          "Creating WhatsApp booking...",
-        type: "success",
-      });
-
-      // ========================================================
-      // CALL BACKEND
-      // ========================================================
-
-      const response =
-        await createWhatsAppBooking(
-          bookingPayload
-        );
-
-      console.log(
-        "WhatsApp Booking Response:",
-        response
-      );
-
-      // ========================================================
-      // EXTRACT RESPONSE
-      // ========================================================
-
-      const responseData =
-        response?.data ||
-        response;
-
-      const bookingData =
-        responseData?.booking ||
-        responseData?.bookingData ||
-        responseData;
-
-      const whatsappUrl =
-        responseData?.whatsappUrl;
-
-      // ========================================================
-      // ADD BOOKING TO CONTEXT
-      // ========================================================
-
-      if (bookingData) {
-        addBooking(bookingData);
-      }
-
-      // ========================================================
-      // OPEN WHATSAPP
-      // ========================================================
-
-      if (whatsappUrl) {
-        window.open(
-          whatsappUrl,
-          "_blank",
-          "noopener,noreferrer"
-        );
-      } else {
-        // Fallback:
-        // Build WhatsApp message on frontend
-        const message =
-          buildWhatsAppMessage(
-            bookingPayload,
-            bookingData
-          );
-
-        const whatsappNumber =
-          "918378891656";
-
-        const fallbackUrl =
-          `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-            message
-          )}`;
-
-        window.open(
-          fallbackUrl,
-          "_blank",
-          "noopener,noreferrer"
-        );
-      }
-
-      setToast({
-        message:
-          "Booking created successfully. WhatsApp is ready to send.",
-        type: "success",
-      });
-
-      // Navigate after opening WhatsApp
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2500);
-    } catch (error) {
-      console.error(
-        "WhatsApp Booking Error:",
-        error
-      );
-
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "WhatsApp booking failed.";
-
-      const lowerMessage =
-        errorMessage.toLowerCase();
-
-      if (
-        lowerMessage.includes(
-          "already booked"
-        ) ||
-        lowerMessage.includes(
-          "already reserved"
-        )
-      ) {
-        setToast({
-          message:
-            "This car is already booked for the selected dates. Please choose different dates.",
-          type: "error",
-        });
-      } else {
-        setToast({
-          message: errorMessage,
-          type: "error",
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setToast({
+      message: errorMessage,
+      type: "error",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // ============================================================
   // FETCH DATA ON PAGE LOAD
@@ -10915,7 +11070,7 @@ Thank you.
                       Back
                     </button>
 
-                    {/* WhatsApp */}
+                    {/* WhatsApp 
                     <button
                       type="button"
                       onClick={
@@ -10939,7 +11094,7 @@ Thank you.
                           </span>
                         </>
                       )}
-                    </button>
+                    </button>-->*/}
 
                     {/* Normal Booking */}
                     <button
@@ -10968,7 +11123,7 @@ Thank you.
                     </button>
                   </div>
 
-                  <div className="mt-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+                  {/* <div className="mt-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
                     <FiMessageCircle className="mt-0.5 shrink-0 text-lg text-[#25D366]" />
 
                     <div>
@@ -10984,7 +11139,7 @@ Thank you.
                         booking details.
                       </p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
             )}

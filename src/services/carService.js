@@ -1,29 +1,31 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080";
+// const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://car-rental-app-backend-2.onrender.com";
 
-const CAR_IMAGE_BASE_URL ="http://localhost:8080/car-images";
+const CAR_IMAGE_BASE_URL =`${BASE_URL}/car-images`;
 
-const API_URL = "http://localhost:8080/home/cars";
-const LOGIN = "http://localhost:8080/home/login";
+const API_URL = `${BASE_URL}/home/cars`;
+const LOGIN = `${BASE_URL}/home/login`;
 // const FORGOT_PASSWORD = "http://localhost:8080/home/forgot-password";
 
-const CART_API_URL = "http://localhost:8080/user/getCarts";
-const DELETE_CART_BY_ID = "http://localhost:8080/user/deleteCarts";
-const GET_USER_BY_EMAIL = "http://localhost:8080/user/getUserByEmail";
-const UPDATE_USER = "http://localhost:8080/user/updateProfile";
-const ALL_USERS_FETCH_API_URL = "http://localhost:8080/user/getAllUsers";
-const USER_ALL_DOCUMENTS = "http://localhost:8080/user/listOfDocuments";
-const DELETE_Document_BY_ID = "http://localhost:8080/user/deleteUserDocument";
+const CART_API_URL = `${BASE_URL}/user/getCarts`;
+const DELETE_CART_BY_ID = `${BASE_URL}/user/deleteCarts`;
+const GET_USER_BY_EMAIL = `${BASE_URL}/user/getUserByEmail`;
+const UPDATE_USER = `${BASE_URL}/user/updateProfile`;
+const ALL_USERS_FETCH_API_URL = `${BASE_URL}/user/getAllUsers`;
+const USER_ALL_DOCUMENTS = `${BASE_URL}/user/listOfDocuments`;
+const DELETE_Document_BY_ID = `${BASE_URL}/user/deleteUserDocument`;
+const TripDetailsForHistoryApi = `${BASE_URL}/user/TripDetailsForHistory`;
 
 
 
-const UPDATE_CAR_API_URL = "http://localhost:8080/auth/admin/updateCar";
-const DELETE_CAR_BY_ID = "http://localhost:8080/auth/admin/deleteCarById";
-const DELETE_USER_BY_ID = "http://localhost:8080/auth/admin/deleteUserById";
-const UPDATE_USER_STATUS = "http://localhost:8080/auth/admin/updateUserStatus";
-const UPDATE_USER_ROLE = "http://localhost:8080/auth/admin/updateUserRole";
-const DELETE_BOOKING_BY_ID = "http://localhost:8080/auth/admin/deleteBookingById";
+const UPDATE_CAR_API_URL = `${BASE_URL}/auth/admin/updateCar`;
+const DELETE_CAR_BY_ID = `${BASE_URL}/auth/admin/deleteCarById`;
+const DELETE_USER_BY_ID = `${BASE_URL}/auth/admin/deleteUserById`;
+const UPDATE_USER_STATUS = `${BASE_URL}/auth/admin/updateUserStatus`;
+const UPDATE_USER_ROLE = `${BASE_URL}/auth/admin/updateUserRole`;
+const DELETE_BOOKING_BY_ID = `${BASE_URL}/auth/admin/deleteBookingById`;
 // ========================
 // AUTH HEADER
 // ========================
@@ -267,9 +269,32 @@ export const login = async (email, password) => {
     localStorage.setItem("lastName", data.user.lastName);
     localStorage.setItem("phone", data.user.phone);
     localStorage.setItem("role", data.user.role);
+     console.log("--------------------------------------------------");
+    console.log("Email    : ", localStorage.getItem("email"));
+    console.log("Password : ", localStorage.getItem("password") ) ;
+    console.log("UserId     : ", localStorage.getItem("userId"));
+    console.log("--------------------------------------------------");
   }
 
   return data;
+};
+
+export const TripDetailsForHistory = async (car_id) => {
+    try {
+        const user_id = localStorage.getItem('userId'); 
+
+        if (!user_id) {
+            throw new Error("User ID is missing.");
+        }
+
+        const response = await axios.get(`${TripDetailsForHistoryApi}/${car_id}/${user_id}`);
+        console.log("TripDetailsForHistory Response :",response);
+        return response.data;
+
+    } catch (error) {
+        console.error("Error fetching trip details:", error);
+        throw error;
+    }
 };
 
 // ========================
@@ -340,6 +365,7 @@ export const getAllCarts = async () => {
       `${CART_API_URL}/${userId}`,
       {
         headers: getAuthHeader(),
+        withCredentials: true,
       }
     );
 
@@ -553,24 +579,57 @@ export const getAllUserDocuments = async () => {
   }
 };
 
-export const updateUserDocument = async (
-  userId,
-  documentType,
-  formData
-) => {
+  // export const updateUserDocument = async (
+  //   userId,
+  //   documentType,
+  //   formData
+  // ) => {
+
+
+
+  //   // 1. Get the auth header
+  //   const authHeader = getAuthHeader();
+  
+  //   // 2. Safety check: If no auth header, don't even send the request
+  //   if (!authHeader.Authorization) {
+  //     throw new Error("Authentication credentials missing. Please log in again.");
+  //   }
+
+  //   const response = await axios.put(
+  //     `http://localhost:8080/user/update-document/${userId}/${documentType}`,
+  //     formData,
+  //     {
+  //       headers: {
+  //         ...getAuthHeader(),
+  //       },
+  //     }
+  //   );
+
+  //   return response.data;
+  // };
+
+  export const updateUserDocument = async (userId, documentType, formData) => {
+  // 1. Get the auth header
+  const authHeader = getAuthHeader();
+  
+  // 2. Safety check: If no auth header, don't even send the request
+  if (!authHeader.Authorization) {
+    throw new Error("Authentication credentials missing. Please log in again.");
+  }
+
   const response = await axios.put(
-    `http://localhost:8080/user/update-document/${userId}/${documentType}`,
+    `${BASE_URL}/user/update-document/${userId}/${documentType}`,
     formData,
     {
       headers: {
-        ...getAuthHeader(),
+        ...authHeader,
       },
+      withCredentials: true,
     }
   );
 
   return response.data;
 };
-
 
 export const getCartById = async (id) => {
   try {
@@ -662,7 +721,7 @@ export const saveCarToCart = async (car) => {
     console.log("Cart Request:", cartData);
 
     const response = await axios.post(
-      "http://localhost:8080/user/cart",
+      `${BASE_URL}/user/cart`,
       cartData,
       {
         headers: {
@@ -1098,7 +1157,7 @@ export const carBooking = async (booking) => {
     console.log("Booking Data:", JSON.stringify(bookingData, null, 2));
 
     const response = await axios.post(
-      "http://localhost:8080/user/booking",
+      `${BASE_URL}/user/booking`,
       bookingData,
       {
         headers: {
@@ -1171,7 +1230,7 @@ export const createWhatsAppBooking = async (booking) => {
     };
 
     const response = await axios.post(
-      "http://localhost:8080/api/whatsapp/whatsapp-booking",
+      `${BASE_URL}/api/whatsapp/whatsapp-booking`,
       bookingData,
       {
         headers: {
@@ -1515,7 +1574,8 @@ export const getUserByEmail = async (email) => {
     const response = await axios.get(
       `${GET_USER_BY_EMAIL}/${email}`,
       {
-        headers: getAuthHeader()
+        headers: getAuthHeader(),
+        withCredentials: true,
       }
     );
     console.log("I am in getUserEmail Method : ", response.data);
@@ -1548,7 +1608,7 @@ export const updateUser = async (email, userData) => {
 export const cancelBookingApi = async (bookingId, userId) => {
   console.log("cancelBookingApi : ", bookingId, userId);
   const response = await axios.post(
-    `http://localhost:8080/user/cancelBooking/${bookingId}/${userId}`,
+    `${BASE_URL}/user/cancelBooking/${bookingId}/${userId}`,
     {},
     {
       headers: getAuthHeader()
@@ -1562,9 +1622,10 @@ export const getBookingList = async () => {
   const userId = localStorage.getItem("userId");
 
   const response = await axios.get(
-    `http://localhost:8080/user/bookingList/${userId}`,
+    `${BASE_URL}/user/bookingList/${userId}`,
     {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
+      withCredentials: true,
     }
   );
 
@@ -1576,7 +1637,7 @@ export const getBookingList = async () => {
 export const getPendingBookingList = async () => {
   try {
     const response = await axios.get(
-      "http://localhost:8080/auth/admin/getPendingBookingsData",
+      `${BASE_URL}/auth/admin/getPendingBookingsData`,
       {
         headers: getAuthHeader(),
       }
@@ -1598,7 +1659,7 @@ export const getPendingBookingList = async () => {
 export const getBookingRecords = async () => {
   try {
     const response = await axios.get(
-      "http://localhost:8080/auth/admin/getBookingRecords",
+      `${BASE_URL}/auth/admin/getBookingRecords`,
       {
         headers: getAuthHeader(),
       }
@@ -1623,7 +1684,7 @@ export const updateBookingStatusByAdmin = async (
 ) => {
   try {
     const response = await axios.post(
-      `http://localhost:8080/auth/admin/updateBookingStatus/${bookingId}`,
+      `${BASE_URL}/auth/admin/updateBookingStatus/${bookingId}`,
       null,
       {
         params: {
@@ -1649,7 +1710,7 @@ export const updateBookingStatusByAdmin = async (
 export const updateDocumentStatusByAdmin = async (id, status, reason) => {
   try {
     const response = await axios.post(
-      `http://localhost:8080/auth/admin/updateDocumentStatus/${id}`,
+      `${BASE_URL}/auth/admin/updateDocumentStatus/${id}`,
       null,
       {
         params: {
@@ -1729,6 +1790,39 @@ export const deleteBookingByAdmin = async (id) => {
 //   return response.data;
 // };
 
+// export const uploadDocuments = async (formData) => {
+//   const email = localStorage.getItem("email");
+//   const password = localStorage.getItem("password");
+
+//   if (!email || !password) {
+//     throw new Error("Login credentials not found.");
+//   }
+
+//   console.log("Upload Email:", email);
+//   console.log("Upload Password:", password);
+
+//   console.log("uploadDocuments formData :",formData);
+
+//   const response = await fetch("http://localhost:8080/user/upload-documents", {
+//     method: "POST",
+//     headers: {
+//       Authorization: "Basic " + btoa(email + ":" + password),
+//     },
+//     body: formData,
+//     credentials: "include",
+//   });
+
+//   const result = await response.text();
+
+//   console.log("Upload Status:", response.status);
+//   console.log("Upload Response:", result);
+
+//   if (!response.ok) {
+//     throw new Error(result || "Document upload failed");
+//   }
+
+//   return result;
+// };
 export const uploadDocuments = async (formData) => {
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
@@ -1737,23 +1831,16 @@ export const uploadDocuments = async (formData) => {
     throw new Error("Login credentials not found.");
   }
 
-  console.log("Upload Email:", email);
-  console.log("Upload Password:", password);
-
-  console.log("uploadDocuments formData :",formData);
-
-  const response = await fetch("http://localhost:8080/user/upload-documents", {
+  const response = await fetch(`${BASE_URL}/user/upload-documents`, {
     method: "POST",
     headers: {
       Authorization: "Basic " + btoa(email + ":" + password),
     },
     body: formData,
+    credentials: "include", 
   });
 
   const result = await response.text();
-
-  console.log("Upload Status:", response.status);
-  console.log("Upload Response:", result);
 
   if (!response.ok) {
     throw new Error(result || "Document upload failed");
@@ -1774,19 +1861,43 @@ export const uploadDocuments = async (formData) => {
 //   return response.data;
 // };
 
-export const getUserDocuments = async () => {
-  const userId = localStorage.getItem("userId");
+  // export const getUserDocuments = async () => {
+  //   const userId = localStorage.getItem("userId");
 
-  const response = await axios.get(
-    `http://localhost:8080/user/documents/${userId}`,
-    {
-      headers: getAuthHeader()
+  //   const response = await axios.get(
+  //     `http://localhost:8080/user/documents/${userId}`,
+  //     {
+  //       headers: getAuthHeader(),
+  //       withCredentials: true,
+  //     }
+  //   );
+  //   console.log("I am in getUserDocuments service method :",response.data);
+
+  //   return response.data;
+  // }; 
+  export const getUserDocuments = async () => {
+  try {
+    const userId = localStorage.getItem("userId");
+    
+    if (!userId) {
+      throw new Error("User ID not found in localStorage");
     }
-  );
-  console.log("I am in getUserDocuments service method :",response.data);
 
-  return response.data;
-};
+    const response = await axios.get(
+      `${BASE_URL}/user/documents/${userId}`,
+      {
+        headers: getAuthHeader(),
+        withCredentials: true,
+      }
+    );
+    
+    console.log("I am in getUserDocuments service method:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user documents:", error);
+    throw error;
+  }
+}; 
 
 // add car
 // export const addCar = async (car) => {
@@ -1947,7 +2058,7 @@ export const addCar = async (car) => {
     });
 
     const response = await axios.post(
-      "http://localhost:8080/auth/admin/addCars",
+      `${BASE_URL}/auth/admin/addCars`,
       carAddedData,
       {
         headers: {
@@ -2080,7 +2191,10 @@ export const deleteUserDocument = async (documentType) => {
 
   const response = await axios.delete(
     `${DELETE_Document_BY_ID}/${userId}/${documentType}`,
-    { headers: getAuthHeader() }
+    { 
+      headers: getAuthHeader(),
+      withCredentials: true,
+     }
   );
 
   return response.data;

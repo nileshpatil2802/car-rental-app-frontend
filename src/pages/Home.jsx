@@ -335,7 +335,7 @@ const Home = () => {
 
   </div>
 </section> */}
-      <section className="py-16">
+     {/* <section className="py-16">
         <div className="container-custom">
 
           <h2 className="section-title text-center mb-12">
@@ -390,12 +390,12 @@ const Home = () => {
                 </p>
 
               </motion.div>
-            ))} */}
+            ))} 
 
           </div>
 
         </div>
-      </section>
+      </section> */}
 
       {/* Toast */}
       {toast && (
