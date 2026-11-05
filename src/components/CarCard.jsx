@@ -19,7 +19,7 @@ const CarCard = ({ car }) => {
     >
       {/* Image Container */}
      <div className="relative h-48 overflow-hidden bg-gray-200">
-    <img
+    {/* <img
         src={getCarImageUrl(car.mainImage)}
         alt={car.name}
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -27,7 +27,16 @@ const CarCard = ({ car }) => {
             console.log("Image Failed :", e.target.src);
             e.target.src = "/placeholder-car.jpg";
         }}
-    />
+    /> */}
+
+    <img 
+  src={car.mainImage ? car.mainImage : "https://via.placeholder.com/300"} 
+  alt={car.name} 
+  onError={(e) => { 
+    e.target.onerror = null; // Stops infinite loops if the fallback itself fails
+    e.target.src = "https://via.placeholder.com/300"; 
+  }}
+/>
 
     <div className="absolute top-4 right-4">
         <span
