@@ -96,7 +96,7 @@ const Register = () => {
     try {
 
       const response = await axios.post(
-        "http://localhost:8080/home/register",
+        "https://car-rental-app-backend-1-gb8e.onrender.com/home/register",
         userData,
         {
           headers: {
