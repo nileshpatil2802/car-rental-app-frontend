@@ -1,6 +1,8 @@
 import axios from "axios";
 
-// const BASE_URL = "http://localhost:8080";
+
+
+ //const BASE_URL = "http://localhost:8080";
 const BASE_URL = "https://car-rental-app-backend-1-gb8e.onrender.com";
 
 
@@ -280,16 +282,33 @@ export const login = async (email, password) => {
   return data;
 };
 
-export const TripDetailsForHistory = async (car_id) => {
-    try {
-        const user_id = localStorage.getItem('userId'); 
+// export const TripDetailsForHistory = async (car_id) => {
+//     try {
+//         const user_id = localStorage.getItem('userId'); 
 
-        if (!user_id) {
-            throw new Error("User ID is missing.");
+//         if (!user_id) {
+//             throw new Error("User ID is missing.");
+//         }
+
+//         const response = await axios.get(`${TripDetailsForHistoryApi}/${car_id}/${user_id}`);
+//         console.log("TripDetailsForHistory Response :",response);
+//         return response.data;
+
+//     } catch (error) {
+//         console.error("Error fetching trip details:", error);
+//         throw error;
+//     }
+// };
+
+export const TripDetailsForHistory = async (booking_id) => {
+    try {
+        if (!booking_id) {
+            throw new Error("Booking ID is missing.");
         }
 
-        const response = await axios.get(`${TripDetailsForHistoryApi}/${car_id}/${user_id}`);
-        console.log("TripDetailsForHistory Response :",response);
+        // Send only the unique booking ID to the backend
+        const response = await axios.get(`${TripDetailsForHistoryApi}/${booking_id}`);
+        console.log("TripDetailsForHistory Response :", response);
         return response.data;
 
     } catch (error) {
